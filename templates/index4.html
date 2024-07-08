@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Kamera mit Hintergrundersetzung</title>
+    <style>
+        #videoElement {
+            width: 100%;
+            height: auto;
+        }
+        #outputCanvas {
+            width: 100%;
+            height: auto;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Kamera mit Hintergrundersetzung</h1>
+    <div>
+        <video id="videoElement" autoplay playsinline></video>
+        <canvas id="outputCanvas"></canvas>
+        <img id="outputImage" alt="Processed Frame">
+    </div>
+    <script>
+        const videoElement = document.getElementById('videoElement');
+        const outputCanvas = document.getElementById('outputCanvas');
+        const outputContext = outputCanvas.getContext('2d');
+        const outputImage = document.getElementById('outputImage');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                videoElement.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Error accessing the camera: ", err);
+            });
+
+        videoElement.addEventListener('loadeddata', () => {
+            outputCanvas.width = videoElement.videoWidth;
+            outputCanvas.height = videoElement.videoHeight;
+
+            setInterval(() => {
+                outputContext.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
+                const frameData = outputCanvas.toDataURL('image/jpeg');
+                fetch('{{ url_for("process_frame") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ frame: frameData })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    outputImage.src = 'data:image/jpeg;base64,' + data.frame;
+                })
+                .catch(err => {
+                    console.error("Error processing the frame: ", err);
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
