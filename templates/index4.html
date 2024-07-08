@@ -6,13 +6,11 @@
     <title>Live Kamera mit Hintergrundersetzung</title>
     <style>
         #videoElement {
-            width: 100%;
-            height: auto;
+            display: none; /* Versteckt das normale Video */
         }
-        #outputCanvas {
+        #outputImage {
             width: 100%;
             height: auto;
-            display: none;
         }
     </style>
 </head>
@@ -20,12 +18,11 @@
     <h1>Live Kamera mit Hintergrundersetzung</h1>
     <div>
         <video id="videoElement" autoplay playsinline></video>
-        <canvas id="outputCanvas"></canvas>
         <img id="outputImage" alt="Processed Frame">
     </div>
     <script>
         const videoElement = document.getElementById('videoElement');
-        const outputCanvas = document.getElementById('outputCanvas');
+        const outputCanvas = document.createElement('canvas'); // Versteckter Canvas für die Verarbeitung
         const outputContext = outputCanvas.getContext('2d');
         const outputImage = document.getElementById('outputImage');
 

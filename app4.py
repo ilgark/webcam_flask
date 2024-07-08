@@ -8,7 +8,7 @@ import base64
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/background'
 
-# Initialize Mediapipe Selfie Segmentationsaa
+# Initialize Mediapipe Selfie Segmentationsaaa
 mp_selfie_segmentation = mp.solutions.selfie_segmentation
 selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
 
