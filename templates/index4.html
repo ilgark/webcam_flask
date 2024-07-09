@@ -26,7 +26,7 @@
         const outputContext = outputCanvas.getContext('2d');
         const outputImage = document.getElementById('outputImage');
 
-        navigator.mediaDevices.getUserMedia({ video: true })
+        navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })  // Reduce resolution to 640x480
             .then(stream => {
                 videoElement.srcObject = stream;
             })
@@ -38,7 +38,7 @@
             outputCanvas.width = videoElement.videoWidth;
             outputCanvas.height = videoElement.videoHeight;
 
-            setInterval(() => {
+            function sendFrame() {
                 outputContext.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
                 const frameData = outputCanvas.toDataURL('image/jpeg');
                 fetch('{{ url_for("process_frame") }}', {
@@ -51,11 +51,14 @@
                 .then(response => response.json())
                 .then(data => {
                     outputImage.src = 'data:image/jpeg;base64,' + data.frame;
+                    requestAnimationFrame(sendFrame);  // Request next frame
                 })
                 .catch(err => {
                     console.error("Error processing the frame: ", err);
                 });
-            }, 100);
+            }
+
+            requestAnimationFrame(sendFrame);  // Start sending frames
         });
     </script>
 </body>
